@@ -2,6 +2,7 @@
 
 S3method(vec_ptype2,scalar)
 S3method(vec_ptype2.double,scalar)
+S3method(vec_ptype2.integer,scalar)
 export(is_scalar)
 export(scalar)
 import(vctrs)

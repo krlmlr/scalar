@@ -10,9 +10,14 @@ is_scalar <- function(x) {
   inherits(x, "scalar")
 }
 
+un_scalar <- function(x) {
+  class(x) <- setdiff(class(x), "scalar")
+  x
+}
+
 #' @export
 vec_ptype2.scalar <- function(x, y, ..., x_arg = "x", y_arg = "y") {
-  NextMethod()
+  vec_ptype2(y, un_scalar(x), ..., x_arg = y_arg, y_arg = x_arg)
 }
 
 #' @export
@@ -23,8 +28,17 @@ vec_cast.double.scalar <- function(x, to, ...) {
 }
 
 #' @export
+#' @method vec_ptype2.integer scalar
+vec_ptype2.integer.scalar <- function(x, y, ..., x_arg = "x", y_arg = "y") {
+  y <- un_scalar(y)
+  if (!is.numeric(y)) stop_incompatible_type(x, y, x_arg, y_arg)
+  if (is.integer(y)) integer() else numeric()
+}
+
+#' @export
 #' @method vec_ptype2.double scalar
 vec_ptype2.double.scalar <- function(x, y, ..., x_arg = "x", y_arg = "y") {
-  asdf
-  NextMethod()
+  y <- un_scalar(y)
+  if (!is.numeric(y)) stop_incompatible_type(x, y, x_arg, y_arg)
+  numeric()
 }
