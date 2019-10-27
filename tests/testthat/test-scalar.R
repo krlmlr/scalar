@@ -14,3 +14,9 @@ test_that("can concatenate", {
   expect_equal(vec_c(scalar(1), 2:3), 1:3)
   expect_equal(vec_c(0:1, scalar(2)), 0:2)
 })
+
+test_that("can slice", {
+  expect_equal(vec_slice(scalar(2), 1), scalar(2))
+  expect_equal(vec_slice(scalar(2), c(0, 1)), scalar(2))
+  expect_equal(vec_slice(scalar(2), c(1, 1)), c(2, 2))
+})

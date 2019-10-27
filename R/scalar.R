@@ -42,3 +42,13 @@ vec_ptype2.double.scalar <- function(x, y, ..., x_arg = "x", y_arg = "y") {
   if (!is.numeric(y)) stop_incompatible_type(x, y, x_arg, y_arg)
   numeric()
 }
+
+#' @export
+vec_proxy.scalar <- function(x, ...) {
+  un_scalar(x)
+}
+
+#' @export
+vec_restore.scalar <- function(x, ...) {
+  if (vec_size(x) == 1) scalar(x) else un_scalar(x)
+}
