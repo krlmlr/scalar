@@ -11,15 +11,17 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+library(tidyverse)
 pkgload::load_all()
 ```
 
 # scalar
 
 <!-- badges: start -->
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 <!-- badges: end -->
 
-The goal of scalar is to ...
+The goal of scalar is to provide a [vctrs](https://vctrs.r-lib.org/) compatible way to indicate that a vector is intended to have length one.
 
 ## Installation
 
@@ -31,25 +33,29 @@ install.packages("scalar")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This class is useful to distinguish between scalars and vectors when creating one-row tibbles that contain arbitrary objects, e.g. results of `rowwise()`-like computations.
 
 ```{r example}
 library(scalar)
-## basic example code
+
+wrap_unless_scalar <- function(x) {
+  if (is_scalar(x)) return(x)
+  list(x)
+}
+
+tibble_row <- function(...) {
+  lst <- tibble::lst(...)
+  row <- purrr::map(lst, wrap_unless_scalar)
+  tibble(!!!row)
+}
+
+tibble_row(a = 1, b = 2:3, c = list(4))
+tibble_row(a = scalar(1), b = 2:3, c = scalar(list(4)))
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+Non-scalars are rejected. Concatenation returns a "bare" object.
 
-```{r cars}
-summary(cars)
+```{r example2, error = TRUE}
+scalar(1:2)
+vec_c(scalar(1), scalar(2))
 ```
-
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date.
-
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
-```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub!

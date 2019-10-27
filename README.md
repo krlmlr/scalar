@@ -5,9 +5,12 @@
 
 <!-- badges: start -->
 
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 <!-- badges: end -->
 
-The goal of scalar is to …
+The goal of scalar is to provide a [vctrs](https://vctrs.r-lib.org/)
+compatible way to indicate that a vector is intended to have length one.
 
 ## Installation
 
@@ -20,33 +23,41 @@ install.packages("scalar")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This class is useful to distinguish between scalars and vectors when
+creating one-row tibbles that contain arbitrary objects, e.g. results of
+`rowwise()`-like computations.
 
 ``` r
 library(scalar)
-## basic example code
+
+wrap_unless_scalar <- function(x) {
+  if (is_scalar(x)) return(x)
+  list(x)
+}
+
+tibble_row <- function(...) {
+  lst <- tibble::lst(...)
+  row <- purrr::map(lst, wrap_unless_scalar)
+  tibble(!!!row)
+}
+
+tibble_row(a = 1, b = 2:3, c = list(4))
+#> # A tibble: 1 x 3
+#>   a         b         c         
+#>   <list>    <list>    <list>    
+#> 1 <dbl [1]> <int [2]> <list [1]>
+tibble_row(a = scalar(1), b = 2:3, c = scalar(list(4)))
+#> # A tibble: 1 x 3
+#>   a        b         c        
+#>   <scalar> <list>    <scalar> 
+#> 1 1        <int [2]> <dbl [1]>
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+Non-scalars are rejected. Concatenation returns a “bare” object.
 
 ``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
+scalar(1:2)
+#> Error in scalar(1:2): vec_size(x) == 1 is not TRUE
+vec_c(scalar(1), scalar(2))
+#> [1] 1 2
 ```
-
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date.
-
-You can also embed plots, for example:
-
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub\!
