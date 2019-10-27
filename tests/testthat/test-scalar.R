@@ -20,3 +20,19 @@ test_that("can slice", {
   expect_equal(vec_slice(scalar(2), c(0, 1)), scalar(2))
   expect_equal(vec_slice(scalar(2), c(1, 1)), c(2, 2))
 })
+
+test_that("can subset rows", {
+  tbl <- data.frame(a = scalar(1), b = 1)
+  expect_s3_class(tbl$a, "scalar")
+  tbl2 <- tbl[c(1, 1), ]
+  expect_identical(class(tbl2$a), "numeric")
+  rownames(tbl2) <- NULL
+  expect_equal(tbl2, data.frame(a = c(1, 1), b = c(1, 1)))
+})
+
+test_that("can bind", {
+  tbl <- data.frame(a = scalar(1), b = 1)
+  tbl2 <- vec_rbind(tbl, tbl)
+  expect_identical(class(tbl2$a), "numeric")
+  expect_equal(tbl2, data.frame(a = c(1, 1), b = c(1, 1)))
+})
